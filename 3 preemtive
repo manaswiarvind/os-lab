@@ -1,0 +1,112 @@
+void EDF_Preemptive(struct Process p[], int n)
+{
+    printf("\n===== Preemptive EDF =====\n");
+
+    int time = 0, completed = 0;
+    int remaining[MAX];
+
+    for(int i=0;i<n;i++)
+        remaining[i] = p[i].bt;
+
+    while(completed < n)
+    {
+        int idx = -1;
+
+        // Find process with earliest deadline
+        for(int i=0;i<n;i++)
+        {
+            if(remaining[i] > 0)
+            {
+                if(idx == -1 || p[i].deadline < p[idx].deadline)
+                    idx = i;
+            }
+        }
+
+        // Execute for 1 unit
+        remaining[idx]--;
+        time++;
+
+        if(remaining[idx] == 0)
+        {
+            p[idx].ct = time;
+            p[idx].tat = p[idx].ct;
+            p[idx].wt = p[idx].tat - p[idx].bt;
+            completed++;
+        }
+    }
+}
+
+void RMS_Preemptive(struct Process p[], int n)
+{
+    printf("\n===== Preemptive RMS =====\n");
+
+    int time = 0, completed = 0;
+    int remaining[MAX];
+
+    for(int i=0;i<n;i++)
+        remaining[i] = p[i].bt;
+
+    while(completed < n)
+    {
+        int idx = -1;
+
+        // Highest priority = smallest period
+        for(int i=0;i<n;i++)
+        {
+            if(remaining[i] > 0)
+            {
+                if(idx == -1 || p[i].period < p[idx].period)
+                    idx = i;
+            }
+        }
+
+        remaining[idx]--;
+        time++;
+
+        if(remaining[idx] == 0)
+        {
+            p[idx].ct = time;
+            p[idx].tat = p[idx].ct;
+            p[idx].wt = p[idx].tat - p[idx].bt;
+            completed++;
+        }
+    }
+}
+
+
+void Proportional_Preemptive(struct Process p[], int n)
+{
+    printf("\n===== Preemptive Proportional Share =====\n");
+
+    int time = 0, completed = 0;
+    int remaining[MAX];
+
+    for(int i=0;i<n;i++)
+        remaining[i] = p[i].bt;
+
+    while(completed < n)
+    {
+        for(int i=0;i<n;i++)
+        {
+            if(remaining[i] > 0)
+            {
+                int slice = p[i].share;  // more share → more CPU
+
+                while(slice-- && remaining[i] > 0)
+                {
+                    remaining[i]--;
+                    time++;
+
+                    if(remaining[i] == 0)
+                    {
+                        p[i].ct = time;
+                        p[i].tat = p[i].ct;
+                        p[i].wt = p[i].tat - p[i].bt;
+                        completed++;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
